@@ -1,0 +1,266 @@
+expression generate_cycle =
+		let
+		    generate_cycle_by_date = (date_base as date) as number =>
+		    let
+		        format_cycle = Number.FromText(
+		            Date.ToText(date_base, "yyyyMM")
+		        )
+		    in
+		        format_cycle
+		in
+		    generate_cycle_by_date
+	lineageTag: b3b2e59a-5c9c-4bc3-8f6f-14a7eb38e34d
+	queryGroup: functions
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
+
+expression 1_1_base_sales =
+		let
+		    file = Table.PromoteHeaders(
+		        Csv.Document(
+		            File.Contents(
+		                "C:\Users\douglas.junior\Downloads\base_data_tb_business\td-business\base_ETL_files\base_sales.csv"
+		            )
+		        )
+		    )
+		    ,columns_name = Table.ColumnNames(file)
+		    ,int_columns = {
+		        List.Last(columns_name)
+		    }
+		    ,int_type = List.Transform(
+		        int_columns
+		        ,each {_, each Number.From(_), Int64.Type}
+		    )
+		    ,date_columns = {
+		        List.First(columns_name)
+		    }
+		    ,date_type = List.Transform(
+		        date_columns
+		        ,each {_, each Date.From(_), type date}
+		    )
+		    ,text_columns = List.RemoveItems(
+		        columns_name
+		        ,List.Combine({
+		            int_columns
+		            ,date_columns
+		        })
+		    )
+		    ,text_type = List.Transform(
+		        text_columns
+		        ,each {_, each Text.From(_), type text}
+		    )
+		    ,combine_types = List.Combine({
+		        int_type
+		        ,date_type
+		        ,text_type
+		    })
+		    ,transform_types = Table.TransformColumns(
+		        file
+		        ,combine_types
+		    )
+		    ,create_cycle = Table.AddColumn(
+		        transform_types
+		        ,"cycle"
+		        ,each generate_cycle([Data Venda])
+		        ,Int64.Type
+		    )
+		in
+		    create_cycle
+	lineageTag: edd813a5-a176-418c-8af3-40c85f630bd6
+	queryGroup: 01_base_files
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 1_2_base_clients =
+		let
+		    file = Table.PromoteHeaders(
+		        Csv.Document(
+		            File.Contents(
+		                "C:\Users\douglas.junior\Downloads\base_data_tb_business\td-business\base_ETL_files\clients_transformed.csv"
+		            )
+		        )
+		    )
+		    ,columns_name = Table.ColumnNames(file)
+		    ,int_columns = {
+		        List.Last(columns_name)
+		    }
+		    ,int_type = List.Transform(
+		        int_columns
+		        ,each {_, each Number.From(_), Int64.Type}
+		    )
+		    ,percent_columns = List.Select(
+		        columns_name
+		        ,each Text.Contains(_,"Comissao")
+		    )
+		    ,percent_type = List.Transform(
+		        percent_columns
+		        ,each {_, each Percentage.From(_), Percentage.Type}
+		    )
+		    ,date_columns = List.Select(
+		        columns_name
+		        ,each Text.Contains(_,"Data")
+		    )
+		    ,date_type = List.Transform(
+		        date_columns
+		        ,each {_, each Date.From(_), type date}
+		    )
+		    ,text_columns = List.RemoveItems(
+		        columns_name
+		        ,List.Combine({
+		            int_columns
+		            ,percent_columns
+		            ,date_columns
+		        })
+		    )
+		    ,text_type = List.Transform(
+		        text_columns
+		        ,each {_, each Text.From(_), type text}
+		    )
+		    ,combine_types = List.Combine({
+		        int_type
+		        ,percent_type
+		        ,date_type
+		        ,text_type
+		    })
+		    ,transform_types = Table.TransformColumns(
+		        file
+		        ,combine_types
+		    )
+		in
+		    transform_types
+	lineageTag: d87668ba-cfaa-4b78-972f-b452991e5da7
+	queryGroup: 01_base_files
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 1_4_base_goals_monthly =
+		let
+		    file = Table.PromoteHeaders(
+		        Csv.Document(
+		            File.Contents(
+		                "C:\Users\douglas.junior\Downloads\base_data_tb_business\td-business\base_ETL_files\goals_transformed.csv"
+		            )
+		        )
+		    )
+		    ,columns_name = Table.ColumnNames(file)
+		    ,replace_point = Table.ReplaceValue(
+		        file
+		        ,"."
+		        ,","
+		        ,Replacer.ReplaceText
+		        ,List.LastN(columns_name,2)
+		    )
+		    ,int_columns = List.Select(
+		        columns_name
+		        ,each Text.Contains(_, "Período") or Text.Contains(_, "id")
+		    )
+		    ,int_type = List.Transform(
+		        int_columns
+		        ,each {_, each Number.From(_), Int64.Type}
+		    )
+		    ,currency_columns = List.Select(
+		        columns_name
+		        ,each Text.Contains(_, "meta")
+		    )
+		    ,currency_type = List.Transform(
+		        currency_columns
+		        ,each {_, each Currency.From(_), Currency.Type}
+		    )
+		    ,text_columns = List.RemoveItems(
+		        columns_name
+		        ,List.Combine({
+		            int_columns
+		            ,currency_columns
+		        })
+		    )
+		    ,text_type = List.Transform(
+		        text_columns
+		        ,each {_, each Text.From(_), type text}
+		    )
+		    ,combine_types = List.Combine({
+		        int_type
+		        ,currency_type
+		        ,text_type
+		    })
+		    ,transform_types = Table.TransformColumns(
+		        replace_point
+		        ,combine_types
+		    )
+		in
+		    transform_types
+	lineageTag: f6eff422-8c02-48f7-9b5e-eb3253b7ed15
+	queryGroup: 01_base_files
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 1_3_base_products =
+		let
+		    file = Table.PromoteHeaders(
+		        Csv.Document(
+		            File.Contents(
+		                "C:\Users\douglas.junior\Downloads\base_data_tb_business\td-business\base_ETL_files\products_transformed.csv"
+		            )
+		        )
+		    )
+		    ,columns_name = Table.ColumnNames(file)
+		    ,replace_point = Table.ReplaceValue(
+		        file
+		        ,"."
+		        ,","
+		        ,Replacer.ReplaceText
+		        ,{
+		            List.Last(columns_name)
+		        }
+		    )
+		    ,int_columns = List.Select(
+		        columns_name
+		        ,each Text.Contains(_, "Período")
+		    )
+		    ,int_type = List.Transform(
+		        int_columns
+		        ,each {_, each Number.From(_), Int64.Type}
+		    )
+		    ,currency_columns = {
+		        List.Last(columns_name)
+		    }
+		    ,currency_type = List.Transform(
+		        currency_columns
+		        ,each {_, each Currency.From(_), Currency.Type}
+		    )
+		    ,text_columns = List.RemoveItems(
+		        columns_name
+		        ,List.Combine({
+		            int_columns
+		            ,currency_columns
+		        })
+		    )
+		    ,text_type = List.Transform(
+		        text_columns
+		        ,each {_, each Text.From(_), type text}
+		    )
+		    ,combine_types = List.Combine({
+		        int_type
+		        ,currency_type
+		        ,text_type
+		    })
+		    ,transform_types = Table.TransformColumns(
+		        replace_point
+		        ,combine_types
+		    )
+		in
+		    transform_types
+	lineageTag: 86711224-6f56-4388-9335-45bc2c71ca1d
+	queryGroup: 01_base_files
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

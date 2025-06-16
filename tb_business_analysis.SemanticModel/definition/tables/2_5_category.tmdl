@@ -1,0 +1,46 @@
+table 2_5_category
+	lineageTag: eb42f1c4-23ae-4608-845e-00162b491f6f
+
+	column Categoria
+		dataType: string
+		lineageTag: 4f8d81ab-f4d4-402e-9999-7355c7dc0869
+		summarizeBy: none
+		sourceColumn: Categoria
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 2_5_category = m
+		mode: import
+		queryGroup: 02_dimensions
+		source =
+				let
+				    columns_names = {"Categoria"}
+				    ,base_category = Table.Sort(
+				        Table.Group(
+				            Table.SelectColumns(
+				                #"1_3_base_products"
+				                ,columns_names
+				            )
+				            ,columns_names
+				            ,{}
+				        )
+				        ,{
+				            {"Categoria", Order.Ascending}
+				        }
+				    )
+				    ,add_null_category = Table.Combine({
+				        #table (
+				            type table [
+				                Categoria = text
+				            ]
+				            ,{{"0"}}
+				        )
+				        ,base_category
+				    })
+				in
+				    add_null_category
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,21 @@
+Cliente,Cidade,Vendedor,DataInicio,DataFim,Comissao,seller_id
+Cliente 1,São Paulo,103 - João Augusto,15/02/2022,31/12/9999,7%,103
+Cliente 2,Recife,102 - Flávia Alessandra,15/02/2022,31/12/9999,10%,102
+Cliente 3,São Paulo,102 - Flávia Alessandra,15/02/2022,31/12/9999,9%,102
+Cliente 4,Recife,103 - João Augusto,15/02/2022,31/12/9999,8%,103
+Cliente 5,Recife,102 - Flávia Alessandra,15/02/2022,31/12/9999,6%,102
+Cliente 6,Recife,105 - Kleber Dias,01/10/2022,31/12/9999,10%,105
+Cliente 7,Salvador,105 - Kleber Dias,01/10/2022,31/12/9999,5%,105
+Cliente 8,Salvador,107 - Paulo Roberto,15/06/2022,31/12/9999,7%,107
+Cliente 9,Salvador,107 - Paulo Roberto,15/06/2022,31/12/9999,3%,107
+Cliente 10,São Paulo,104 - José Antônio,15/02/2022,31/12/9999,8%,104
+Cliente 11,Salvador,104 - José Antônio,15/02/2022,31/12/9999,11%,104
+Cliente 12,São Paulo,104 - José Antônio,15/02/2022,31/12/9999,10%,104
+Cliente 13,Belo Horizonte,104 - José Antônio,15/02/2022,31/12/9999,9%,104
+Cliente 14,Belo Horizonte,101 - Fábio Ferreira,10/05/2022,31/12/9999,7%,101
+Cliente 15,Belo Horizonte,101 - Fábio Ferreira,10/05/2022,31/12/9999,11%,101
+Cliente 16,Belo Horizonte,101 - Fábio Ferreira,10/05/2022,31/12/9999,6%,101
+Cliente 17,São Paulo,101 - Fábio Ferreira,10/05/2022,31/12/9999,8%,101
+Cliente 18,Teresina,106 - Marcos Silva,01/10/2022,31/12/9999,3%,106
+Cliente 19,Teresina,106 - Marcos Silva,01/10/2022,31/12/9999,8%,106
+Cliente 20,Teresina,106 - Marcos Silva,01/10/2022,31/12/9999,12%,106

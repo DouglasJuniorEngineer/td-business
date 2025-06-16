@@ -1,0 +1,60 @@
+relationship 02218f5e-0e62-4639-8530-1db2e5078cc0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 2_2_calendar.data
+	toColumn: LocalDateTable_72f35f64-4858-4cc5-9383-d3bdbcd0f551.Date
+
+relationship eaf3f2d5-fcd1-4dfe-ac57-29dca36ff17b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: last_actualization.'Última atualização'
+	toColumn: LocalDateTable_c8f209a4-c9ff-472b-97cc-b7dd5e07a4f8.Date
+
+relationship 36d43faa-6e71-5158-85ac-db68170ea0a7
+	crossFilteringBehavior: bothDirections
+	securityFilteringBehavior: bothDirections
+	fromColumn: 2_2_calendar.ciclo
+	toColumn: 2_1_cycles.ciclo
+
+relationship a687d218-04ae-d820-f344-2b29fd59e1b4
+	fromColumn: 3_1_resume_sales.'Data Venda'
+	toColumn: 2_2_calendar.data
+
+relationship 6149903b-6e7a-4a95-40f4-1be9fc45ec91
+	fromColumn: 3_1_resume_sales.Categoria
+	toColumn: 2_5_category.Categoria
+
+relationship b1a679c9-4999-dc35-f98c-85093518b2e5
+	fromColumn: 3_1_resume_sales.Produto
+	toColumn: 2_4_products.Produto
+
+relationship 50ba549a-cb53-f372-8efb-73af51f260cb
+	fromColumn: 3_2_resume_sellers_sales.cycle
+	toColumn: 2_1_cycles.ciclo
+
+relationship 81076b94-a749-7cb2-4ed6-b012345f3c7e
+	fromColumn: 3_2_resume_sellers_sales.seller_id
+	toColumn: 2_3_sellers.seller_id
+
+relationship AutoDetected_4c8937ac-8c6b-47c1-a3b0-7d881d762ec2
+	fromColumn: 3_4_resume_products_sales.Produto
+	toColumn: 2_4_products.Produto
+
+relationship AutoDetected_592c18f1-da01-44f7-ae26-2350aa143e29
+	fromColumn: 3_3_resume_clients_sales.Cliente
+	toColumn: 2_6_clients.Cliente
+
+relationship c3e0b051-d258-c6a5-4de3-3644db04eb87
+	fromColumn: 3_4_resume_products_sales.cycle
+	toColumn: 2_1_cycles.ciclo
+
+relationship d1522e1a-955a-8491-7a24-76c066c6e7c9
+	fromColumn: 3_3_resume_clients_sales.cycle
+	toColumn: 2_1_cycles.ciclo
+
+relationship d2b40c2c-c5ea-d51e-0758-079f91577d75
+	fromColumn: 3_1_resume_sales.seller_id
+	toColumn: 2_3_sellers.seller_id
+
+relationship 018ab6e3-c9eb-7cab-a49e-0001dce17278
+	fromColumn: 3_1_resume_sales.Cliente
+	toColumn: 2_6_clients.Cliente
+

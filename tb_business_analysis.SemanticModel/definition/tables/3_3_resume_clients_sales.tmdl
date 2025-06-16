@@ -1,0 +1,71 @@
+table 3_3_resume_clients_sales
+	lineageTag: 8360d8e0-786d-461c-a97e-8252b5784937
+
+	column cycle
+		dataType: int64
+		formatString: 0
+		lineageTag: efd40c60-7be8-452c-b80b-b043e9586955
+		summarizeBy: none
+		sourceColumn: cycle
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cliente
+		dataType: string
+		lineageTag: 10e8032d-1a76-4124-962a-4e72aa114a18
+		summarizeBy: none
+		sourceColumn: Cliente
+
+		annotation SummarizationSetBy = Automatic
+
+	column count_sales
+		dataType: int64
+		formatString: 0
+		lineageTag: 5c37eb48-ba40-46b1-9d51-96b4aab67388
+		summarizeBy: sum
+		sourceColumn: count_sales
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_sales
+		dataType: decimal
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		lineageTag: 18e789c7-7745-4e66-9797-f4d9036607e5
+		summarizeBy: sum
+		sourceColumn: total_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	partition 3_3_resume_clients_sales = m
+		mode: import
+		queryGroup: 03_fact
+		source =
+				let
+				    base_sales = Table.Buffer(#"3_1_resume_sales")
+				    ,group_clients = Table.Group(
+				        base_sales
+				        ,{
+				            "cycle"
+				            ,"Cliente"
+				        }
+				        ,{
+				            {"count_sales", each List.Sum([Quantidade]), Int64.Type}
+				            ,{"total_sales", each List.Sum([total_sale]), Currency.Type}
+				        }
+				    )
+				    ,sort_values = Table.Sort(
+				        group_clients
+				        ,{
+				            {"cycle", Order.Ascending}
+				            ,{"Cliente", Order.Ascending}
+				        }
+				    )
+				in
+				    sort_values
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

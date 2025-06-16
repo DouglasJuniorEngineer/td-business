@@ -1,0 +1,39 @@
+table last_actualization
+	lineageTag: 3c06b15d-d117-4b17-a54b-fcbec929922e
+
+	column 'Última atualização'
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: db148600-ed7c-4764-8dc4-1fbcfb7e2343
+		summarizeBy: none
+		sourceColumn: Última atualização
+
+		variation Variation
+			isDefault
+			relationship: eaf3f2d5-fcd1-4dfe-ac57-29dca36ff17b
+			defaultHierarchy: LocalDateTable_c8f209a4-c9ff-472b-97cc-b7dd5e07a4f8.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition last_actualization = m
+		mode: import
+		source =
+				let
+				    actual_date = DateTimeZone.From(DateTime.LocalNow())
+				    ,base_table = #table(
+				        type table [
+				            Última atualização = datetimezone
+				        ]
+				        ,{{actual_date}}
+				    )
+				    ,transform_date = Table.TransformColumns(
+				        base_table
+				        ,{{"Última atualização", each DateTimeZone.SwitchZone(_, -3), type datetimezone}}
+				    )
+				in
+				    transform_date
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

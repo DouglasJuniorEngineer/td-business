@@ -1,0 +1,41 @@
+table 2_3_sellers
+	lineageTag: 3f14ffe6-c79d-4ab8-868f-2eb5573e4a69
+
+	column seller_id
+		dataType: int64
+		formatString: 0
+		lineageTag: a1ff7761-b097-4ed9-9683-4ec03ecaa801
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Vendedores
+		dataType: string
+		lineageTag: bd1cc8fd-7dc7-49ff-93d6-2d9ea71d45be
+		summarizeBy: none
+		sourceColumn: Vendedores
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 2_3_sellers = m
+		mode: import
+		queryGroup: 02_dimensions
+		source =
+				let
+				    columns_names = {"seller_id", "Vendedores"}
+				    ,base_sellers = Table.Group(
+				        Table.SelectColumns(
+				            #"1_4_base_goals_monthly"
+				            ,columns_names
+				        )
+				        ,columns_names
+				        ,{}
+				    )
+				in
+				    base_sellers
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

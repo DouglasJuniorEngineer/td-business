@@ -1,0 +1,32 @@
+table 2_4_products
+	lineageTag: 6c249141-4275-4bbe-a370-6af81a795267
+
+	column Produto
+		dataType: string
+		lineageTag: b13e3542-5fcb-4e31-ac49-0f177791cd69
+		summarizeBy: none
+		sourceColumn: Produto
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 2_4_products = m
+		mode: import
+		queryGroup: 02_dimensions
+		source =
+				let
+				    columns_names = {"Produto"}
+				    ,base_products = Table.Group(
+				        Table.SelectColumns(
+				            #"1_3_base_products"
+				            ,columns_names
+				        )
+				        ,columns_names
+				        ,{}
+				    )
+				in
+				    base_products
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

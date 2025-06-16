@@ -1,0 +1,111 @@
+table 3_2_resume_sellers_sales
+	lineageTag: b81e28fc-40f1-4873-93e7-377d74d94a8a
+
+	column cycle
+		dataType: int64
+		formatString: 0
+		lineageTag: afed8558-6fb9-4dc3-9c6a-a01045955823
+		summarizeBy: none
+		sourceColumn: cycle
+
+		annotation SummarizationSetBy = Automatic
+
+	column seller_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 597b5cfa-b3b0-4cd7-935d-c686fc0a565d
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column count_sales
+		dataType: int64
+		formatString: 0
+		lineageTag: 80a1cd8b-da04-4d1e-96a2-f55d975ce702
+		summarizeBy: sum
+		sourceColumn: count_sales
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_sales
+		dataType: decimal
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		lineageTag: 562edfef-15d9-41e5-876c-fbada2d918dc
+		summarizeBy: sum
+		sourceColumn: total_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	column total_comission
+		dataType: decimal
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		lineageTag: eb798f13-5bee-4a1b-8892-c028052fae25
+		summarizeBy: sum
+		sourceColumn: total_comission
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	column monthly_goals
+		dataType: decimal
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		lineageTag: 92c43b67-b24d-4465-9fb9-4f5621f29fd2
+		summarizeBy: sum
+		sourceColumn: monthly_goals
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	column result_goal
+		dataType: double
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: b5f37392-1ca4-4b4f-95fd-da79f601e3e3
+		summarizeBy: sum
+		sourceColumn: result_goal
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 3_2_resume_sellers_sales = m
+		mode: import
+		queryGroup: 03_fact
+		source =
+				let
+				    base_sales = Table.Buffer(#"3_1_resume_sales")
+				    ,group_sellers = Table.Group(
+				        base_sales
+				        ,{
+				            "cycle"
+				            ,"seller_id"
+				        }
+				        ,{
+				            {"monthly_goals", each List.Max([meta_mensal]), Currency.Type}
+				            ,{"count_sales", each List.Sum([Quantidade]), Int64.Type}
+				            ,{"total_sales", each List.Sum([total_sale]), Currency.Type}
+				            ,{"total_comission", each List.Sum([comission_value]), Currency.Type}
+				        }
+				    )
+				    ,add_result_goal = Table.AddColumn(
+				        group_sellers
+				        ,"result_goal"
+				        ,each (([monthly_goals] - [total_sales]) / [monthly_goals] - 1) * -1
+				        ,Percentage.Type
+				    )
+				    ,sort_values = Table.Sort(
+				        add_result_goal
+				        ,{
+				            {"cycle", Order.Ascending}
+				            ,{"seller_id", Order.Ascending}
+				        }
+				    )
+				in
+				    sort_values
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
