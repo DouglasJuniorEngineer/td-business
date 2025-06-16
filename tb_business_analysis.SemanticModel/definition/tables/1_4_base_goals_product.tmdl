@@ -1,0 +1,169 @@
+table 1_4_base_goals_product
+	lineageTag: 803bd089-18e8-44eb-8c50-ad073d80cb75
+
+	column seller_id
+		dataType: int64
+		formatString: 0
+		lineageTag: d4c397c1-2bce-43cb-9e2a-a833ee78156f
+		summarizeBy: sum
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Vendedores
+		dataType: string
+		lineageTag: 2aadeeee-e2fd-470e-afc9-a3276d11ffd8
+		summarizeBy: none
+		sourceColumn: Vendedores
+
+		annotation SummarizationSetBy = Automatic
+
+	column Período
+		dataType: int64
+		formatString: 0
+		lineageTag: 47a1eff4-f692-44ec-af4d-21190b218e84
+		summarizeBy: sum
+		sourceColumn: Período
+
+		annotation SummarizationSetBy = Automatic
+
+	column meta_mensal
+		dataType: decimal
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		lineageTag: cc6152cd-92e5-4721-bc69-fe62e8e7a636
+		summarizeBy: sum
+		sourceColumn: meta_mensal
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	column meta_diaria
+		dataType: decimal
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		lineageTag: 8b7e3df2-6015-40d0-92ae-8286bc25eb00
+		summarizeBy: sum
+		sourceColumn: meta_diaria
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	column meta_diaria_power_query
+		dataType: decimal
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		lineageTag: 2604eb27-613c-4c46-8e36-0a31f69a122c
+		summarizeBy: sum
+		sourceColumn: meta_diaria_power_query
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	column meta_diaria_dax = ```
+			
+			    var year = value(left('1_4_base_goals_product'[Período], 4))
+			    var month = value(RIGHT('1_4_base_goals_product'[Período], 2))
+			    var days_in_month = DAY(eomonth(date(year, month, 1), 0))
+			    return
+			    round('1_4_base_goals_product'[meta_mensal] / days_in_month, 2)
+			
+			```
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		lineageTag: f2619e05-0590-4438-b559-496999c34411
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	partition 1_4_base_goals_product = m
+		mode: import
+		queryGroup: 01_base_files
+		source = ```
+				let
+				    file = Table.PromoteHeaders(
+				        Csv.Document(
+				            File.Contents(
+				                "C:\Users\douglas.junior\Downloads\base_data_tb_business\td-business\base_ETL_files\goals_transformed.csv"
+				            )
+				        )
+				    )
+				    ,columns_name = Table.ColumnNames(file)
+				    ,replace_point = Table.ReplaceValue(
+				        file
+				        ,"."
+				        ,","
+				        ,Replacer.ReplaceText
+				        ,List.LastN(columns_name,2)
+				    )
+				    ,int_columns = List.Select(
+				        columns_name
+				        ,each Text.Contains(_, "Período") or Text.Contains(_, "id")
+				    )
+				    ,int_type = List.Transform(
+				        int_columns
+				        ,each {_, each Number.From(_), Int64.Type}
+				    )
+				    ,currency_columns = List.Select(
+				        columns_name
+				        ,each Text.Contains(_, "meta")
+				    )
+				    ,currency_type = List.Transform(
+				        currency_columns
+				        ,each {_, each Currency.From(_), Currency.Type}
+				    )
+				    ,text_columns = List.RemoveItems(
+				        columns_name
+				        ,List.Combine({
+				            int_columns
+				            ,currency_columns
+				        })
+				    )
+				    ,text_type = List.Transform(
+				        text_columns
+				        ,each {_, each Text.From(_), type text}
+				    )
+				    ,combine_types = List.Combine({
+				        int_type
+				        ,currency_type
+				        ,text_type
+				    })
+				    ,transform_types = Table.TransformColumns(
+				        replace_point
+				        ,combine_types
+				    )
+				    ,add_days_in_month = Table.AddColumn(
+				        Table.AddColumn(
+				            Table.AddColumn(
+				                transform_types
+				                ,"ano"
+				                ,each Number.FromText(Text.Start(Text.From([Período]), 4))
+				                ,Int64.Type
+				            )
+				            ,"mes"
+				            ,each Number.FromText(Text.End(Text.From([Período]), 2))
+				            ,Int64.Type
+				        )
+				        ,"dias_mes"
+				        ,each Date.DaysInMonth(#date([ano], [mes], 1))
+				        ,type date
+				    )
+				    ,daily_goals = Table.AddColumn(
+				        add_days_in_month 
+				        ,"meta_diaria_power_query"
+				        ,each Number.Round([meta_mensal] / [dias_mes], 2)
+				        ,Currency.Type
+				    )
+				    ,remove_columns = Table.RemoveColumns(
+				        daily_goals
+				        ,{"ano", "mes", "dias_mes"}
+				    )
+				in
+				    remove_columns
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

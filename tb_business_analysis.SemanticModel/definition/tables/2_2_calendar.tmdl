@@ -1,0 +1,137 @@
+table 2_2_calendar
+	lineageTag: b457da7d-d220-45e5-88a8-85c3d56ec24d
+
+	column data
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 03b1a5c6-7268-4610-b671-89a28399f015
+		summarizeBy: none
+		sourceColumn: data
+
+		variation Variation
+			isDefault
+			relationship: 02218f5e-0e62-4639-8530-1db2e5078cc0
+			defaultHierarchy: LocalDateTable_72f35f64-4858-4cc5-9383-d3bdbcd0f551.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ano
+		dataType: int64
+		formatString: 0
+		lineageTag: f6869376-299a-49dd-8a87-e0f039639fec
+		summarizeBy: sum
+		sourceColumn: ano
+
+		annotation SummarizationSetBy = Automatic
+
+	column mes
+		dataType: int64
+		formatString: 0
+		lineageTag: 023bb0ec-c055-4c1f-9366-d9a8d3505e79
+		summarizeBy: sum
+		sourceColumn: mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column dia
+		dataType: int64
+		formatString: 0
+		lineageTag: b2f4508b-58d5-4fdf-968c-50137be95d9e
+		summarizeBy: sum
+		sourceColumn: dia
+
+		annotation SummarizationSetBy = Automatic
+
+	column nome_mes
+		dataType: string
+		lineageTag: 6d306820-4cf4-466d-9d4b-82520212b52c
+		summarizeBy: none
+		sourceColumn: nome_mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column ciclo
+		dataType: int64
+		formatString: 0
+		lineageTag: 62c7c21e-d7e0-4398-b593-ef0be0ecad93
+		summarizeBy: none
+		sourceColumn: ciclo
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 2_2_calendar = m
+		mode: import
+		queryGroup: 02_dimensions
+		source =
+				let
+				    base_dates = #"1_1_base_sales"[Data Venda]
+				    ,date_start = Date.From(
+				       List.Min(base_dates)
+				    )
+				    ,date_end = Date.EndOfMonth(
+				        Date.From(
+				            List.Max(base_dates)
+				        )
+				    )
+				    ,day_interval = Duration.Days(date_end - date_start) + 1
+				    ,list_dates = List.Dates(date_start, day_interval, #duration(1, 0, 0, 0))
+				    ,table_date = Table.FromList(
+				        list_dates
+				        ,Splitter.SplitByNothing()
+				        ,{"data"}
+				        ,type table
+				    )
+				    ,add_year = Table.AddColumn(
+				        table_date
+				        ,"ano"
+				        ,each Date.Year([data])
+				        ,Int64.Type
+				    )
+				    ,add_month = Table.AddColumn(
+				        add_year
+				        ,"mes"
+				        ,each Date.Month([data])
+				        ,Int64.Type
+				    )
+				    ,add_day = Table.AddColumn(
+				        add_month
+				        ,"dia"
+				        ,each Date.Day([data])
+				        ,Int64.Type
+				    )
+				    ,add_name_month = Table.AddColumn(
+				        add_day
+				        ,"nome_mes"
+				        ,each Text.Proper(Text.Start(Date.ToText([data]
+				        ,"MMMM"
+				        ,"pt-BR")
+				        ,3))
+				        ,type text
+				    )
+				    ,date_columm = {"data"}
+				    ,date_type = List.Transform(
+				        date_columm,
+				        each {_,type date}
+				    )
+				    ,combine_types = List.Combine({
+				        date_type
+				    })
+				    ,transform_type = Table.TransformColumnTypes(
+				        add_name_month
+				        ,combine_types
+				    )
+				    ,add_cycle = Table.AddColumn(
+				        transform_type
+				        ,"ciclo"
+				        ,each generate_cycle([data])
+				        ,Int64.Type
+				    )
+				in
+				    add_cycle
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

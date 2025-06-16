@@ -1,0 +1,280 @@
+table base_measures
+	lineageTag: dabe883d-f70a-4624-8531-1068050ff586
+
+	measure 01__01_goals = ```
+			
+			    var sellers_filtered = isfiltered('2_3_sellers'[Vendedores])
+			    var result =
+			        if(
+			            sellers_filtered
+			            ,[01_02_seller_sales]
+			            ,divide(
+			                [01_02_seller_sales]
+			                ,calculate(
+			                    [01_03_seller_month_goals]
+			                    ,removefilters('2_3_sellers'[Vendedores])
+			                )
+			            )
+			        )
+			    return
+			        result
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: 01_sellers
+		lineageTag: 87f0339d-0fbd-4bf3-b827-5a4f979edb39
+
+	measure 02_02_product_sales = ```
+			
+			    var result = sum('3_4_resume_products_sales'[total_sales])
+			    return
+			        result
+			
+			```
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: 02_products
+		lineageTag: a8e404ef-01c4-4e05-8ab5-44588978d3de
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 02_01_product_percent = ```
+			
+			    var filter_cycle = isfiltered('2_1_cycles'[ciclo])
+			    var filter_product = isfiltered('2_4_products'[Produto])
+			    var sum_product_sales = sum('3_4_resume_products_sales'[total_sales])
+			    var context_filter = 
+			        calculate(
+			            sum('3_4_resume_products_sales'[total_sales])
+			            ,allselected('2_1_cycles'[ciclo])
+			            ,allselected('2_4_products'[Produto])
+			        )
+			
+			    return
+			        divide(
+			            sum_product_sales
+			            ,context_filter
+			        )
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: 02_products
+		lineageTag: 2e8b28c6-8814-4baf-ad50-13ebc334b0bf
+
+	measure 01_02_seller_sales = ```
+			
+			    var result = sum('3_1_resume_sales'[total_sale])
+			    return
+			        result
+			
+			```
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		displayFolder: 01_sellers
+		lineageTag: 500e7622-3291-4dd9-9ab5-46332a6396bb
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure 01_03_seller_month_goals = ```
+			
+			    sumx(
+			        summarize(
+			            '3_1_resume_sales'
+			            ,'3_1_resume_sales'[seller_id]
+			            ,'3_1_resume_sales'[cycle]
+			            ,"meta_mensal", max('3_1_resume_sales'[meta_mensal])
+			        )
+			        ,[meta_mensal]
+			    )
+			
+			```
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		displayFolder: 01_sellers
+		lineageTag: c8c117d5-c9a7-482c-b8db-d4ca9997d6e6
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure 01_05_seller_comission = ```
+			
+			    var result = sum('3_1_resume_sales'[comission_value])
+			    return
+			        result
+			
+			```
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		displayFolder: 01_sellers
+		lineageTag: 32b8ed6a-1068-4022-a2c7-4c45df658f2d
+
+	measure 01_06_sellers_rank = ```
+			
+			    var total_sales = sumx(
+			        all('2_3_sellers'[seller_id])
+			        ,[01_02_seller_sales]
+			    )
+			    return
+			        if(
+			            total_sales = 0
+			            ,0
+			            ,rankx(
+			                all('2_3_sellers'[Vendedores])
+			                ,
+			                    [01_02_seller_sales]
+			                    + 0.001 * [02_03_product_count]
+			                ,
+			                ,desc
+			                ,dense
+			            )
+			        )
+			
+			```
+		formatString: 0
+		displayFolder: 01_sellers
+		lineageTag: abe62d4b-0031-42f6-bebd-5b1fbae10207
+
+	measure 01_04_seller_daily_goals = ```
+			
+			    sumx(
+			        summarize(
+			            '3_1_resume_sales'
+			            ,'3_1_resume_sales'[seller_id]
+			            ,'3_1_resume_sales'[cycle]
+			            ,"meta_diaria", max('3_1_resume_sales'[meta_diaria])
+			        )
+			        ,[meta_diaria]
+			    )
+			
+			```
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		displayFolder: 01_sellers
+		lineageTag: cf43b203-e8c5-4632-bd03-87e931cfe9fa
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure 01_07_seller_sales_acumulate = ```
+			
+			    // var actual_date = max('3_1_resume_sales'[Data Venda])
+			    // var last_sales = 
+			    //     calculate(
+			    //         [01_02_seller_sales]
+			    //         ,filter(
+			    //             all('3_1_resume_sales'[Data Venda])
+			    //             ,'3_1_resume_sales'[Data Venda] < actual_date
+			    //         )
+			    //     )
+			    // var sales_today = [01_02_seller_sales]
+			    // return
+			    //     last_sales + sales_today
+			    // calculate(
+			    //     [01_02_seller_sales]
+			    //     ,filter(
+			    //         all('3_1_resume_sales'[Data Venda])
+			    //         ,'3_1_resume_sales'[Data Venda] <= max('3_1_resume_sales'[Data Venda])
+			    //     )
+			    // )
+			    var actual_date = max('2_2_calendar'[data])
+			    var sales = 
+			        calculate(
+			            [01_02_seller_sales]
+			            ,filter(
+			                all('2_2_calendar'[data])
+			                ,'2_2_calendar'[data] <= actual_date
+			            )
+			        )
+			    return
+			        sales
+			
+			```
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		displayFolder: 01_sellers
+		lineageTag: 11748645-ddf2-4c6a-bf76-561a997d6a9f
+
+	measure 03_01_clients_rank = ```
+			
+			    var client_table = filter(
+			        allselected('3_1_resume_sales'[Cliente])
+			        ,[01_02_seller_sales] > 0
+			    )
+			    var total_sales = sumx(
+			        client_table
+			        ,[01_02_seller_sales]
+			    )
+			    return
+			        if(
+			            total_sales = 0
+			            ,0
+			            ,rankx(
+			                client_table
+			                ,
+			                    [01_02_seller_sales]
+			                    + 0.001 * [02_03_product_count]
+			                ,
+			                ,desc
+			                ,dense
+			            )
+			        )
+			
+			```
+		formatString: 0
+		displayFolder: 03_client
+		lineageTag: 45251bda-aa14-4a00-ad01-75b10a8cfa72
+
+	measure 02_03_product_count = ```
+			
+			    var result = sum('3_1_resume_sales'[Quantidade])
+			    return
+			        result
+			
+			```
+		formatString: #,0
+		displayFolder: 02_products
+		lineageTag: 967df9f6-f0c2-459f-807b-2d5520e2baff
+
+	measure 02_04_products_rank = ```
+			
+			    var product_table = filter(
+			        allselected('3_1_resume_sales'[Produto])
+			        ,[01_02_seller_sales] > 0
+			    )
+			    var total_sales = sumx(
+			        product_table
+			        ,[01_02_seller_sales]
+			    )
+			    return
+			        if(
+			            total_sales = 0
+			            ,0
+			            ,rankx(
+			                product_table
+			                ,
+			                    [01_02_seller_sales]
+			                    + 0.001 * [02_03_product_count]
+			                ,
+			                ,desc
+			                ,dense
+			            )
+			        )
+			
+			```
+		formatString: 0
+		displayFolder: 02_products
+		lineageTag: 27155dde-eaa4-4628-bc25-fbfa2fc83649
+
+	partition base_measures = m
+		mode: import
+		source =
+				let
+				    base_table = #table(
+				        type table [
+				            column1 = text
+				        ]
+				        ,{}
+				    )
+				    ,remove_column = Table.RemoveColumns(
+				        base_table
+				        ,{"column1"}
+				    )
+				in
+				    remove_column
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

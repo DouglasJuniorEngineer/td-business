@@ -1,0 +1,50 @@
+table 2_6_clients
+	lineageTag: e2a54766-f64a-4ee0-adfc-6fd6648d0982
+
+	column Cliente
+		dataType: string
+		lineageTag: e747507e-caf2-4f35-90b5-4f846ed3c187
+		summarizeBy: none
+		sourceColumn: Cliente
+		sortByColumn: client_id
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column client_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 39e2ecf2-4197-4453-adb9-c8515c316d9c
+		summarizeBy: sum
+		sourceColumn: client_id
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 2_6_clients = m
+		mode: import
+		queryGroup: 02_dimensions
+		source =
+				let
+				    columns_names = {"Cliente"}
+				    ,base_clients = Table.Group(
+				        Table.SelectColumns(
+				            #"1_2_base_clients"
+				            ,columns_names
+				        )
+				        ,columns_names
+				        ,{}
+				    )
+				    ,add_client_id = Table.AddColumn(
+				        base_clients
+				        ,"client_id"
+				        ,each Number.From(Text.Split([Cliente], " "){1})
+				        ,Int64.Type
+				    )
+				in
+				    add_client_id
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

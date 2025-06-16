@@ -1,0 +1,71 @@
+table 3_4_resume_products_sales
+	lineageTag: f55eab43-a87d-44ef-b7a2-cd4cf4003128
+
+	column cycle
+		dataType: int64
+		formatString: 0
+		lineageTag: 8e19c59c-8cf0-457e-b6ca-e72b2175c9dc
+		summarizeBy: none
+		sourceColumn: cycle
+
+		annotation SummarizationSetBy = Automatic
+
+	column Produto
+		dataType: string
+		lineageTag: 60a03de8-3a14-4814-8cfb-e4591f000b6e
+		summarizeBy: none
+		sourceColumn: Produto
+
+		annotation SummarizationSetBy = Automatic
+
+	column count_sales
+		dataType: int64
+		formatString: 0
+		lineageTag: dc117c3d-4498-464c-8994-988132e20b7a
+		summarizeBy: sum
+		sourceColumn: count_sales
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_sales
+		dataType: decimal
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		lineageTag: 7240a855-92e5-4593-84cc-8ed6100a3d6f
+		summarizeBy: sum
+		sourceColumn: total_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	partition 3_4_resume_products_sales = m
+		mode: import
+		queryGroup: 03_fact
+		source =
+				let
+				    base_sales = Table.Buffer(#"3_1_resume_sales")
+				    ,group_products = Table.Group(
+				        base_sales
+				        ,{
+				            "cycle"
+				            ,"Produto"
+				        }
+				        ,{
+				            {"count_sales", each List.Sum([Quantidade]), Int64.Type}
+				            ,{"total_sales", each List.Sum([total_sale]), Currency.Type}
+				        }
+				    )
+				    ,sort_values = Table.Sort(
+				        group_products
+				        ,{
+				            {"cycle", Order.Ascending}
+				            ,{"Produto", Order.Ascending}
+				        }
+				    )
+				in
+				    sort_values
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,191 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 27.687800105282349,
+            "y": 0
+          },
+          "nodeIndex": "2_1_cycles",
+          "nodeLineageTag": "7f0a19e2-d5eb-41dc-8d80-9e96d61ff1c4",
+          "size": {
+            "height": 145,
+            "width": 234
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 24.558478049307496,
+            "y": 206.68114633339064
+          },
+          "nodeIndex": "2_2_calendar",
+          "nodeLineageTag": "b457da7d-d220-45e5-88a8-85c3d56ec24d",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 24.683330847917148,
+            "y": 485.39553420073349
+          },
+          "nodeIndex": "2_3_sellers",
+          "nodeLineageTag": "3f14ffe6-c79d-4ab8-868f-2eb5573e4a69",
+          "size": {
+            "height": 145,
+            "width": 234
+          },
+          "zIndex": 7
+        },
+        {
+          "location": {
+            "x": 19.651994197018809,
+            "y": 679.00445200219929
+          },
+          "nodeIndex": "2_4_products",
+          "nodeLineageTag": "6c249141-4275-4bbe-a370-6af81a795267",
+          "size": {
+            "height": 145,
+            "width": 234
+          },
+          "zIndex": 8
+        },
+        {
+          "location": {
+            "x": 23.585195289072658,
+            "y": 876.30376709758355
+          },
+          "nodeIndex": "2_5_category",
+          "nodeLineageTag": "eb42f1c4-23ae-4608-845e-00162b491f6f",
+          "size": {
+            "height": 145,
+            "width": 234
+          },
+          "zIndex": 9
+        },
+        {
+          "location": {
+            "x": 1157.6691315810012,
+            "y": 335.07874090542373
+          },
+          "nodeIndex": "base_measures",
+          "nodeLineageTag": "dabe883d-f70a-4624-8531-1068050ff586",
+          "size": {
+            "height": 145,
+            "width": 234
+          },
+          "zIndex": 10
+        },
+        {
+          "location": {
+            "x": 1154.983653396825,
+            "y": 513.65181526734068
+          },
+          "nodeIndex": "last_actualization",
+          "nodeLineageTag": "3c06b15d-d117-4b17-a54b-fcbec929922e",
+          "size": {
+            "height": 145,
+            "width": 234
+          },
+          "zIndex": 12
+        },
+        {
+          "location": {
+            "x": 32.355187818784088,
+            "y": 1054.6519993895454
+          },
+          "nodeIndex": "2_6_clients",
+          "nodeLineageTag": "e2a54766-f64a-4ee0-adfc-6fd6648d0982",
+          "size": {
+            "height": 145,
+            "width": 234
+          },
+          "zIndex": 11
+        },
+        {
+          "location": {
+            "x": 562.27593216500611,
+            "y": 23.198689585704983
+          },
+          "nodeIndex": "3_1_resume_sales",
+          "nodeLineageTag": "38d3f66b-e87a-48c4-b547-264d452e6b22",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 13
+        },
+        {
+          "location": {
+            "x": 566.598028871284,
+            "y": 403.78215604979277
+          },
+          "nodeIndex": "3_2_resume_sellers_sales",
+          "nodeLineageTag": "b81e28fc-40f1-4873-93e7-377d74d94a8a",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 565.60231486874261,
+            "y": 739.36056508627553
+          },
+          "nodeIndex": "3_3_resume_clients_sales",
+          "nodeLineageTag": "8360d8e0-786d-461c-a97e-8252b5784937",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 566.76420927791651,
+            "y": 976.37573736909087
+          },
+          "nodeIndex": "3_4_resume_products_sales",
+          "nodeLineageTag": "f55eab43-a87d-44ef-b7a2-cd4cf4003128",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 1156.560144427229,
+            "y": 726.42127312614025
+          },
+          "nodeIndex": "1_4_base_goals_product",
+          "nodeLineageTag": "803bd089-18e8-44eb-8c50-ad073d80cb75",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 4
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 70.955543900969,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

@@ -1,0 +1,239 @@
+table 3_1_resume_sales
+	lineageTag: 38d3f66b-e87a-48c4-b547-264d452e6b22
+
+	column 'Data Venda'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 10d261ac-c0dd-4ca9-9565-5e4ffe059088
+		summarizeBy: none
+		sourceColumn: Data Venda
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Nota Fiscal'
+		dataType: string
+		lineageTag: 707c1ee3-e419-4963-aca1-97baf16c86bb
+		summarizeBy: none
+		sourceColumn: Nota Fiscal
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cliente
+		dataType: string
+		lineageTag: 359c18e8-a235-4121-a600-3339aa940aba
+		summarizeBy: none
+		sourceColumn: Cliente
+
+		annotation SummarizationSetBy = Automatic
+
+	column Produto
+		dataType: string
+		lineageTag: fdfb831a-97de-4e48-85bb-87f9eac1a668
+		summarizeBy: none
+		sourceColumn: Produto
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quantidade
+		dataType: int64
+		formatString: 0
+		lineageTag: 0294209a-4749-4328-a291-111a32e8c669
+		summarizeBy: sum
+		sourceColumn: Quantidade
+
+		annotation SummarizationSetBy = Automatic
+
+	column cycle
+		dataType: int64
+		formatString: 0
+		lineageTag: 960ff406-beeb-42a5-8168-afdfe7357fcf
+		summarizeBy: sum
+		sourceColumn: cycle
+
+		annotation SummarizationSetBy = Automatic
+
+	column Comissao
+		dataType: double
+		lineageTag: efe58d1a-72e7-4546-9212-b230e6de917c
+		summarizeBy: sum
+		sourceColumn: Comissao
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column seller_id
+		dataType: int64
+		formatString: 0
+		lineageTag: b7dedae8-f84c-4bba-8a2e-50b6f7a8e7f7
+		summarizeBy: none
+		sourceColumn: seller_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Categoria
+		dataType: string
+		lineageTag: b3d41340-a32c-45a4-8928-afd7b90d6694
+		summarizeBy: none
+		sourceColumn: Categoria
+
+		annotation SummarizationSetBy = Automatic
+
+	column Valor
+		dataType: double
+		lineageTag: 5c1fda14-e5ed-47be-acbd-0ce6f605e966
+		summarizeBy: sum
+		sourceColumn: Valor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_sale
+		dataType: decimal
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		lineageTag: e9abc0da-3e46-4467-8477-7299a2636063
+		summarizeBy: sum
+		sourceColumn: total_sale
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	column comission_value
+		dataType: double
+		lineageTag: 549c964a-332a-4eca-852f-613919e3ee7a
+		summarizeBy: sum
+		sourceColumn: comission_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column meta_diaria
+		dataType: decimal
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		lineageTag: 67350046-a0e9-4ac7-be2d-8a966592d53c
+		summarizeBy: sum
+		sourceColumn: meta_diaria
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	column meta_mensal
+		dataType: decimal
+		formatString: "R$"\ #,0.###############;-"R$"\ #,0.###############;"R$"\ #,0.###############
+		lineageTag: 3e7f4168-53bf-44b9-9a8a-a4478313b74e
+		summarizeBy: sum
+		sourceColumn: meta_mensal
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	partition 3_1_resume_sales = m
+		mode: import
+		queryGroup: 03_fact
+		source =
+				let
+				    base_sales = Table.Buffer(#"1_1_base_sales")
+				    ,base_clients = Table.Buffer(#"1_2_base_clients")
+				    ,base_sellers = Table.Buffer(#"1_4_base_goals_monthly")
+				    ,base_products = Table.Buffer(#"1_3_base_products")
+				    ,join_seller_commission = Table.ExpandTableColumn(
+				        Table.NestedJoin(
+				            base_sales
+				            ,{
+				                "Cliente"
+				            }
+				            ,base_clients
+				            ,{
+				                "Cliente"
+				            }
+				            ,"data"
+				            ,JoinKind.LeftOuter
+				        )
+				        ,"data"
+				        ,{
+				            "Comissao"
+				            ,"seller_id"
+				        }
+				    )
+				    ,join_product_value = Table.ExpandTableColumn(
+				        Table.NestedJoin(
+				            join_seller_commission
+				            ,{
+				                "Produto"
+				                ,"cycle"
+				            }
+				            ,base_products
+				            ,{
+				                "Produto"
+				                ,"Período"
+				            }
+				            ,"data"
+				            ,JoinKind.LeftOuter
+				        )
+				        ,"data"
+				        ,{
+				            "Categoria"
+				            ,"Valor"
+				        }
+				    )
+				    ,join_goal = Table.ExpandTableColumn(
+				        Table.NestedJoin(
+				            join_product_value
+				            ,{
+				                "seller_id"
+				                ,"cycle"
+				            }
+				            ,base_sellers
+				            ,{
+				                "seller_id"
+				                ,"Período"
+				            }
+				            ,"data"
+				            ,JoinKind.LeftOuter
+				        )
+				        ,"data"
+				        ,{
+				            "meta_diaria"
+				            ,"meta_mensal"
+				        }
+				    )
+				    ,replace_null_category = Table.ReplaceValue(
+				        join_goal
+				        ,null
+				        ,"0"
+				        ,Replacer.ReplaceValue
+				        ,{"Categoria"}
+				    )
+				    ,replace_null_value = Table.ReplaceValue(
+				        replace_null_category
+				        ,null
+				        ,0
+				        ,Replacer.ReplaceValue
+				        ,{"Valor"}
+				    )
+				    ,add_total_value = Table.AddColumn(
+				        replace_null_value
+				        ,"total_sale"
+				        ,each try [Valor] * [Quantidade] otherwise 0
+				        ,Currency.Type
+				    )
+				    ,add_comission_value = Table.AddColumn(
+				        add_total_value
+				        ,"comission_value"
+				        ,each try [total_sale] * [Comissao] otherwise 0
+				        ,type number
+				    )
+				in
+				    add_comission_value
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
